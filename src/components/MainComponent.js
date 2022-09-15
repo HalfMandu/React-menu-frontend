@@ -13,6 +13,7 @@ import { postComment, postFeedback, fetchDishes, fetchComments, fetchPromos, fet
 import { actions } from 'react-redux-form';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 
+//take a state object and map its fields to component props
 const mapStateToProps = state => {
     return {
       dishes: state.dishes,
@@ -24,6 +25,7 @@ const mapStateToProps = state => {
     }
 }
 
+//map prop actions to disaptch calls
 const mapDispatchToProps = (dispatch) => ({
   postComment: (dishId, rating, comment) => dispatch(postComment(dishId, rating, comment)),
   fetchDishes: () => {dispatch(fetchDishes())},
@@ -41,6 +43,7 @@ const mapDispatchToProps = (dispatch) => ({
 
 class Main extends Component {
 
+  //fetch the component's data once the component has mounted
   componentDidMount() {
     this.props.fetchDishes();
     this.props.fetchComments();
@@ -49,8 +52,10 @@ class Main extends Component {
     this.props.fetchFavorites();
   }
 
+  //final render
   render() {
-
+    
+    //Home -- includes featured dish, promotion, leader
     const HomePage = () => {
       return(
         <Home dish={this.props.dishes.dishes.filter((dish) => dish.featured)[0]}
@@ -66,6 +71,7 @@ class Main extends Component {
       );
     }
 
+    //DishDetail -- includes comments and post comment...favorite present only if authenticated
     const DishWithId = ({match}) => {
       return(
         this.props.auth.isAuthenticated
@@ -92,6 +98,7 @@ class Main extends Component {
       );
     }
 
+    //if user is authenticated, continue to Component, otherwise redirect to home page
     const PrivateRoute = ({ component: Component, ...rest }) => (
       <Route {...rest} render={(props) => (
         this.props.auth.isAuthenticated
@@ -102,7 +109,8 @@ class Main extends Component {
             }} />
       )} />
     );
-
+    
+    //final return, includes a Header component with auth info, and wrapping all with transitions
     return (
       <div>
         <Header auth={this.props.auth} 
@@ -113,7 +121,7 @@ class Main extends Component {
           <CSSTransition key={this.props.location.key} classNames="page" timeout={300}>
             <Switch>
               <Route path="/home" component={HomePage} />
-              <Route exact path='/aboutus' component={() => <About leaders={this.props.leaders} />} />} />
+              <Route exact path='/aboutus' component={() => <About leaders={this.props.leaders} />} />
               <Route exact path="/menu" component={() => <Menu dishes={this.props.dishes} />} />
               <Route path="/menu/:dishId" component={DishWithId} />
               <PrivateRoute exact path="/favorites" component={() => <Favorites favorites={this.props.favorites} deleteFavorite={this.props.deleteFavorite} />} />
